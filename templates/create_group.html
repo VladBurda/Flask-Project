@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Group</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Create a New Group</h1>
+    </header>
+    <main>
+        <form action="/create_group" method="post">
+            <div class="form-group">
+                <label for="groupName">Group Name:</label>
+                <input type="text" id="groupName" name="groupName" value="{{ group_name if group_name else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="groupDescription">Group Description:</label>
+                <textarea id="groupDescription" name="groupDescription" required>{{ group_desc if group_desc else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Private</label>
+                <input type="checkbox" id="status" name="Status" value="Active" {% if is_private %}checked{% endif %}>
+            </div>
+
+            <!-- Input for adding topics -->
+            {% if not topics %}
+            <div class="form-group">
+                <label for="addTopics">Enter Topics:</label>
+                <textarea id="addTopics" name="addTopics" required></textarea>
+            </div>
+            <button type="submit" name="preview">Preview Topics</button>
+            {% endif %}
+
+            <!-- Show transformed topics -->
+            <div id="topics-container">
+                {% if topics %}
+                    <h3>Edit Topics:</h3>
+                    {% for key, value in topics.items() %}
+                        <div class="form-group">
+                            <label>Topic {{ key }}</label>
+                            <input type="text" name="topic_{{ key }}" value="{{value}}">
+                        </div>
+                    {% endfor %}
+                    <button onclick="addTopic()" type="button" id="addTopicBtn">+</button>
+                    <button type="submit" name="final_submit">Create Group</button>
+                {% endif %}
+            </div>
+            <button href="/main" class="form-group" style="margin-top: 20px;">Back to Main Page</button>
+        </form>
+    </main>
+    <script>
+
+        function autoResize(textarea) {
+            textarea.style.height = "auto";
+            textarea.style.height = textarea.scrollHeight + "px";
+        }
+    
+
+        function addTopic() {
+            const topicsContainer = document.querySelector("#topics-container");
+            if (!topicsContainer) return;
+
+            // Find the highest existing topic number
+            let topicInputs = topicsContainer.querySelectorAll("input[name^='topic_']");
+            let topicCount = topicInputs.length > 0 
+                ? Math.max(...Array.from(topicInputs).map(el => parseInt(el.name.replace("topic_", "")))) + 1 
+                : 1;
+
+            const topicDiv = document.createElement("div");
+            topicDiv.classList.add("form-group");
+
+            const label = document.createElement("label");
+            label.textContent = "Topic " + topicCount;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.name = "topic_" + topicCount;
+            input.placeholder = "Enter new topic";
+
+            topicDiv.appendChild(label);
+            topicDiv.appendChild(input);
+
+            // Insert new topic **before the "+" button**
+            const addButton = document.getElementById("addTopicBtn");
+            topicsContainer.insertBefore(topicDiv, addButton);
+        }          
+    </script>
+</body>
+
+</html>

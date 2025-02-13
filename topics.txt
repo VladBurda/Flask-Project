@@ -1,0 +1,15 @@
+1. Liczby pierwsze: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29
+2. Kolory tęczy: czerwony, pomarańczowy, żółty, zielony, niebieski, indygo, fioletowy
+3. Planety Układu Słonecznego: Merkury, Wenus, Ziemia, Mars, Jowisz, Saturn, Uran, Neptun
+4. Najwyższe góry świata:
+Mount Everest (8848 m)
+K2 (8611 m)
+Kangczendzonga (8586 m)
+Lhotse (8516 m)
+Makalu (8485 m)
+5. Najczęściej używane języki na świecie (liczba użytkowników):
+Angielski (~1,5 mld)
+Chiński mandaryński (~1,1 mld)
+Hindi (~600 mln)
+Hiszpański (~500 mln)
+Arabski (~400 mln)

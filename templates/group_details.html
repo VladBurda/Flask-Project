@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>{{ group.group_name }}</h1>
+        <p>{{ group.description }}</p>
+    </header>
+    <main>
+        <h3>Topics</h3>
+        <form action="{{ url_for('group_details', group_id=group.group_id) }}" method="post">
+            {% for key, value in group.topics.items() %}
+                <div class="form-group">
+                    <label>Topic {{ key }}</label>
+                    
+                    {% if session["email"] == group.group_owner %}
+                        <!-- Jeśli użytkownik jest właścicielem, pozwól na edycję -->
+                        <input type="text" name="topic_{{ key }}" value="{{ value }}">
+                    {% else %}
+                        <!-- Jeśli użytkownik nie jest właścicielem, wyłącz pole -->
+                        <input type="text" name="topic_{{ key }}" value="{{ value }}" disabled>
+                    {% endif %}
+
+                    {% if key in group.reserved_topics %}
+                        <p>Reserved by: {{ group.reserved_topics[key] }}</p>
+                    {% else %}
+                        <button type="submit" name="topic_key" value="{{ key }}">Reserve</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            {% if session["email"] == group.group_owner %}
+                <button type="submit" name="update_topics">Update Topics</button>
+            {% endif %}
+        </form>
+
+        {% if session["email"] == group.group_owner %}
+        <!-- Formularz do dodawania nowych tematów -->
+        <h3>Add New Topic</h3>
+        <form action="{{ url_for('group_details', group_id=group.group_id) }}" method="post">
+            <input type="text" name="new_topic" placeholder="Enter new topic name" required>
+            <button type="submit" name="add_topic">Add Topic</button>
+        </form>
+        {% endif %}
+
+        <a href="{{ url_for('main') }}" class="back-link">Back to Main Page</a>
+    </main>
+</body>
+</html>

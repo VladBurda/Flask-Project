@@ -1,0 +1,86 @@
+Dokumentacja Projektu
+
+1. README – Instrukcja Instalacji i Uruchomienia
+
+Wymagania:
+Python 3.x
+Flask
+Przeglądarka internetowa
+
+Instalacja:
+
+    Klonowanie repozytorium:
+    git clone https://github.com/twoje-repozytorium.git
+    cd twoje-repozytorium
+
+    Instalacja zależności:
+    pip install -r requirements.txt
+
+    Uruchomienie aplikacji:
+    python main.py
+
+    Otwórz w przeglądarce:
+    http://127.0.0.1:5000
+
+2. Dokumentacja Techniczna
+
+2.1 Wykorzystane Technologie i Biblioteki
+Flask – framework backendowy
+Jinja2 – silnik szablonów
+HTML, CSS – frontend
+Python – główny język programowania
+
+2.2 Architektura Aplikacji
+Aplikacja jest podzielona na kilka głównych modułów:
+main.py – główny plik aplikacji, zarządza routingiem i logiką biznesową
+program/ – folder zawierający logikę użytkowników i grup:
+user.py – klasa User
+group.py – klasa Group
+templates/ – folder z plikami HTML
+static/ – folder z plikami CSS
+
+2.3 API Endpoints
+Metoda      Endpoint               Opis
+GET         /                      Strona logowania
+POST        /login                 Logowanie użytkownika
+GET         /main                  Strona główna użytkownika
+GET, POST   /create_group          Tworzenie nowej grupy
+GET, POST   /group/<int:group_id>  Szczegóły grupy (rezerwacja tematów, edycja)
+GET         /logout                Wylogowanie użytkownika
+
+2.4 Struktura Bazy Danych (Mockowana)
+Baza użytkowników (users_db) i grup (groups_db) są obecnie przechowywane w pamięci programu jako słowniki.
+Przykładowa struktura users_db:
+users_db = {
+    "test@example.com": User(1, "test@example.com", "password123", "Test User"),
+}
+Przykładowa struktura groups_db:
+groups_db = {
+    1: Group("Python Developers", "Grupa dla entuzjastów Pythona", 1, "test@example.com", True),
+}
+
+!!!W przyszłości planowane jest zastąpienie tej struktury bazą SQL.!!!
+
+3. Dokumentacja Użytkownika
+
+3.1 Logowanie
+Otwórz stronę główną (/).
+Wprowadź e-mail i hasło.
+Kliknij "Log In".
+
+3.2 Tworzenie Grupy
+Przejdź do /create_group.
+Wprowadź nazwę i opis grupy.
+Dodaj tematy (opcjonalnie).
+Kliknij "Create Group".
+
+3.3 Rezerwacja Tematu
+Wejdź do strony grupy.
+Kliknij "Reserve" przy wybranym temacie.
+System zapisze rezerwację.
+
+5. Przykłady Użycia
+Jako użytkownik chcę mieć możliwość stworzenia grupy, aby organizować dyskusje na dany temat.
+Jako użytkownik chcę móc rezerwować tematy w grupach, aby nikt inny nie mógł ich zająć.
+Jako właściciel grupy chcę mieć możliwość edytowania tematów, aby lepiej organizować treści.
+Jako użytkownik chcę mieć możliwość wylogowania się, aby chronić swoje dane.
