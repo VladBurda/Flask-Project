@@ -1,54 +1,603 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Details</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <header>
-        <h1>{{ group.group_name }}</h1>
-        <p>{{ group.description }}</p>
-    </header>
-    <main>
-        <h3>Topics</h3>
-        <form action="{{ url_for('group_details', group_id=group.group_id) }}" method="post">
-            {% for key, value in group.topics.items() %}
-                <div class="form-group">
-                    <label>Topic {{ key }}</label>
-                    
-                    {% if session["email"] == group.group_owner %}
-                        <!-- Jeśli użytkownik jest właścicielem, pozwól na edycję -->
-                        <input type="text" name="topic_{{ key }}" value="{{ value }}">
-                    {% else %}
-                        <!-- Jeśli użytkownik nie jest właścicielem, wyłącz pole -->
-                        <input type="text" name="topic_{{ key }}" value="{{ value }}" disabled>
-                    {% endif %}
+    <title>Group Details | StudySpace</title>
 
-                    {% if key in group.reserved_topics %}
-                        <p>Reserved by: {{ group.reserved_topics[key] }}</p>
-                    {% else %}
-                        <button type="submit" name="topic_key" value="{{ key }}">Reserve</button>
-                    {% endif %}
-                </div>
-            {% endfor %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --sidebar: #111827;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #059669;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: var(--sidebar);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.7px;
+            margin: 0 0 55px 8px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+        }
+
+        .menu-label {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0 0 15px 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            color: #9ca3af;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: white;
+            background: #252f42;
+        }
+
+        .nav-link.active {
+            background: #312e81;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid #293344;
+            padding-top: 20px;
+        }
+
+        /* Main */
+        .content {
+            flex: 1;
+            min-width: 0;
+            padding: 45px 55px;
+        }
+
+        .breadcrumb {
+            margin-bottom: 25px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .group-header {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 32px;
+            margin-bottom: 35px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .group-header::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: #eef2ff;
+            right: -45px;
+            top: -80px;
+        }
+
+        .group-header h1 {
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin: 0 0 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .group-header p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+            margin: 0;
+            max-width: 650px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .section-header h2 {
+            font-size: 21px;
+            margin: 0 0 6px;
+            font-weight: 700;
+        }
+
+        .section-header p {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 20px;
+        }
+
+        /* Topic cards */
+        .topic-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 23px;
+            transition: 0.2s;
+        }
+
+        .topic-card:hover {
+            border-color: #c7d2fe;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .topic-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 17px;
+        }
+
+        .topic-number {
+            color: var(--primary);
+            background: #eef2ff;
+            padding: 7px 11px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 20px;
+        }
+
+        .status.available {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .status.reserved {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .topic-card input {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            outline: none;
+            transition: 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .topic-card input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .topic-card input:disabled {
+            background: #f8fafc;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .reserved-info {
+            font-size: 12px;
+            color: var(--muted);
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 11px;
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .reserved-info strong {
+            color: var(--text);
+        }
+
+        /* Buttons */
+        button {
+            font-family: inherit;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 11px 16px;
+            border: none;
+            border-radius: 9px;
+            background: var(--primary);
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-reserve {
+            width: 100%;
+        }
+
+        .btn-update {
+            margin-top: 25px;
+            padding: 13px 21px;
+        }
+
+        .btn-add {
+            background: #111827;
+        }
+
+        .btn-add:hover {
+            background: #293344;
+        }
+
+        /* Add topic section */
+        .add-section {
+            margin-top: 40px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 27px;
+        }
+
+        .add-section h2 {
+            font-size: 18px;
+            margin: 0 0 7px;
+        }
+
+        .add-section p {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0 0 20px;
+        }
+
+        .add-form {
+            display: flex;
+            gap: 12px;
+            max-width: 600px;
+        }
+
+        .add-form input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .add-form input:focus {
+            border-color: var(--primary);
+        }
+
+        /* Empty state */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            background: white;
+            border: 1px dashed #cbd5e1;
+            border-radius: 15px;
+            padding: 50px 20px;
+        }
+
+        .empty-state .icon {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 8px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            margin-top: 35px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 75px;
+                padding: 25px 10px;
+            }
+
+            .logo {
+                justify-content: center;
+                margin: 0 0 45px;
+            }
+
+            .logo span:last-child,
+            .menu-label,
+            .nav-link span {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+                padding: 14px 5px;
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+
+            .group-header {
+                padding: 25px;
+            }
+
+            .group-header h1 {
+                font-size: 23px;
+                overflow-wrap: anywhere;
+            }
+
+            .add-form {
+                flex-direction: column;
+            }
+
+            .add-form .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">✦</span>
+            <span>StudySpace</span>
+        </div>
+
+        <p class="menu-label">Workspace</p>
+
+        <a href="{{ url_for('main') }}" class="nav-link">
+            <span>▦</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('main') }}" class="nav-link active">
+            <span>👥</span>
+            <span>My Groups</span>
+        </a>
+
+        <div class="sidebar-bottom">
+            <a href="{{ url_for('logout') }}" class="nav-link">
+                <span>↪</span>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+
+        <div class="breadcrumb">
+            <a href="{{ url_for('main') }}">Dashboard</a>
+            / My Groups / {{ group.group_name }}
+        </div>
+
+        <!-- Group header -->
+        <header class="group-header">
+            <h1>{{ group.group_name }}</h1>
+            <p>{{ group.description or 'No group description available.' }}</p>
+        </header>
+
+        <!-- Topics -->
+        <div class="section-header">
+            <div>
+                <h2>Group Topics</h2>
+                <p>Explore topics and reserve the ones you're interested in.</p>
+            </div>
+        </div>
+
+        <form action="{{ url_for('group_details', group_id=group.group_id) }}" method="post">
+
+            <div class="topic-grid">
+
+                {% for key, value in group.topics.items() %}
+
+                    <div class="topic-card">
+
+                        <div class="topic-top">
+                            <span class="topic-number">Topic {{ key }}</span>
+
+                            {% if key in group.reserved_topics %}
+                                <span class="status reserved">● Reserved</span>
+                            {% else %}
+                                <span class="status available">● Available</span>
+                            {% endif %}
+                        </div>
+
+                        {% if session["email"] == group.group_owner %}
+                            <input type="text"
+                                   name="topic_{{ key }}"
+                                   value="{{ value }}">
+                        {% else %}
+                            <input type="text"
+                                   name="topic_{{ key }}"
+                                   value="{{ value }}"
+                                   disabled>
+                        {% endif %}
+
+                        {% if key in group.reserved_topics %}
+
+                            <p class="reserved-info">
+                                Reserved by:
+                                <strong>{{ group.reserved_topics[key] }}</strong>
+                            </p>
+
+                        {% else %}
+
+                            <button type="submit"
+                                    class="btn btn-reserve"
+                                    name="topic_key"
+                                    value="{{ key }}">
+                                Reserve Topic →
+                            </button>
+
+                        {% endif %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+                        <div class="icon">📚</div>
+                        <h3>No topics available</h3>
+                        <p>There are currently no topics in this group.</p>
+                    </div>
+
+                {% endfor %}
+
+            </div>
 
             {% if session["email"] == group.group_owner %}
-                <button type="submit" name="update_topics">Update Topics</button>
+                <button type="submit" name="update_topics" class="btn btn-update">
+                    ✓ Save Changes
+                </button>
             {% endif %}
+
         </form>
 
+        <!-- Add new topic - Owner only -->
         {% if session["email"] == group.group_owner %}
-        <!-- Formularz do dodawania nowych tematów -->
-        <h3>Add New Topic</h3>
-        <form action="{{ url_for('group_details', group_id=group.group_id) }}" method="post">
-            <input type="text" name="new_topic" placeholder="Enter new topic name" required>
-            <button type="submit" name="add_topic">Add Topic</button>
-        </form>
+
+            <section class="add-section">
+                <h2>➕ Add New Topic</h2>
+                <p>Expand your group by adding another topic for members.</p>
+
+                <form action="{{ url_for('group_details', group_id=group.group_id) }}"
+                      method="post"
+                      class="add-form">
+
+                    <input type="text"
+                           name="new_topic"
+                           placeholder="Enter new topic name..."
+                           required>
+
+                    <button type="submit" name="add_topic" class="btn btn-add">
+                        Add Topic
+                    </button>
+
+                </form>
+            </section>
+
         {% endif %}
 
-        <a href="{{ url_for('main') }}" class="back-link">Back to Main Page</a>
+        <a href="{{ url_for('main') }}" class="back-link">
+            ← Back to Dashboard
+        </a>
+
     </main>
+
 </body>
 </html>

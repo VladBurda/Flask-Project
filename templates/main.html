@@ -1,84 +1,414 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page</title>
+    <title>Dashboard | My Groups</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --sidebar: #111827;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --muted: #94a3b8;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            display: flex;
             margin: 0;
-            font-family: Arial, sans-serif;
-            height: 100vh;
+            min-height: 100vh;
+            display: flex;
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
         }
 
+        /* Sidebar */
         .sidebar {
-            width: 200px;
-            background-color: #2c3e50;
+            width: 250px;
+            min-height: 100vh;
+            background: var(--sidebar);
             color: white;
-            padding: 20px;
-            height: 100vh;
-
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
         }
 
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.7px;
+            margin: 0 0 55px 8px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+        }
+
+        .menu-label {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0 0 15px 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            color: #9ca3af;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            color: white;
+            background: #252f42;
+        }
+
+        .nav-link.active {
+            background: #312e81;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid #293344;
+            padding-top: 20px;
+        }
+
+        /* Main content */
         .content {
-            flex-grow: 1;
-            padding: 20px;
+            flex: 1;
+            min-width: 0;
+            padding: 45px 55px;
         }
 
-        button {
-            padding: 10px;
-            font-size: 16px;
-            background-color: rgb(80, 94, 123);
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .welcome h1 {
+            font-size: 30px;
+            letter-spacing: -1.2px;
+            margin: 0 0 9px;
+            font-weight: 800;
+        }
+
+        .welcome p {
+            color: #64748b;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: #4338ca;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        /* Groups section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .group-count {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .create-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            background: var(--primary);
             color: white;
+            padding: 12px 19px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .create-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Group cards */
+        .group-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .group-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            transition: 0.25s;
+            position: relative;
+        }
+
+        .group-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
+            border-color: #c7d2fe;
+        }
+
+        .group-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: #eef2ff;
+            color: #4f46e5;
+            font-size: 21px;
             margin-bottom: 20px;
         }
 
-        .group-list {
-            list-style: none;
-            padding: 0;
+        .group-card h3 {
+            font-size: 17px;
+            margin: 0 0 10px;
         }
 
-        .group-list li {
-            background: #f4f4f4;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
+        .group-card h3 a {
+            color: var(--text);
+            text-decoration: none;
         }
 
-        .btn {
-             display: inline-block;
-             padding: 10px 15px;
-              background-color: rgb(80, 94, 123);
-              color: white;
-              border: none;
-              cursor: pointer;
-              text-decoration: none;
-              border-radius: 5px;
-}
+        .group-card h3 a:hover {
+            color: var(--primary);
+        }
 
+        .group-card p {
+            font-size: 13px;
+            line-height: 1.7;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .card-arrow {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 22px;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Empty state */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            background: white;
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 65px 20px;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .empty-state p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 75px;
+                padding: 25px 10px;
+            }
+
+            .logo {
+                justify-content: center;
+                margin: 0 0 45px;
+            }
+
+            .logo span:last-child,
+            .menu-label,
+            .nav-link span {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+                font-size: 20px;
+                padding: 14px 5px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .welcome h1 {
+                font-size: 23px;
+            }
+
+            .section-header {
+                align-items: flex-start;
+                gap: 15px;
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="sidebar">
-        <h2>Menu Bar</h2>
-    </div>
-    <div class="content">
-        <h1>Welcome, {{ username }}!</h1>
-        <button onclick="window.location.href='/create_group'">Create Group</button>
-        <h2>Your Groups:</h2>
-        <ul class="group-list">
-            {% for group_id, group in groups.items() %}
-                <div class="group">
-                    <h2><a href="{{ url_for('group_details', group_id=group_id) }}">{{ group.group_name }}</a></h2>
-                    <p>{{ group.description }}</p>
+
+    <aside class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">✦</span>
+            <span>StudySpace</span>
+        </div>
+
+        <p class="menu-label">Workspace</p>
+
+        <a href="#" class="nav-link active">
+            <span>▦</span>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="#" class="nav-link">
+            <span>👥</span>
+            <span>My Groups</span>
+        </a>
+
+        <div class="sidebar-bottom">
+            <a href="{{ url_for('logout') }}" class="nav-link">
+                <span>↪</span>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="content">
+
+        <div class="topbar">
+            <div class="welcome">
+                <h1>Welcome back, {{ username }} 👋</h1>
+                <p>Here's what's happening with your workspace.</p>
+            </div>
+
+            <div class="user-avatar">
+                {{ username[0]|upper }}
+            </div>
+        </div>
+
+        <div class="section-header">
+            <div>
+                <h2>Your Groups</h2>
+                <div class="group-count">
+                    {{ groups|length }} groups in your workspace
                 </div>
+            </div>
+
+            <a href="/create_group" class="create-btn">
+                <span>＋</span> Create Group
+            </a>
+        </div>
+
+        <div class="group-list">
+
+            {% for group_id, group in groups.items() %}
+
+                <div class="group-card">
+                    <div class="group-icon">👥</div>
+
+                    <h3>
+                        <a href="{{ url_for('group_details', group_id=group_id) }}">
+                            {{ group.group_name }}
+                        </a>
+                    </h3>
+
+                    <p>{{ group.description or 'No description available.' }}</p>
+
+                    <a class="card-arrow"
+                       href="{{ url_for('group_details', group_id=group_id) }}">
+                        Open group →
+                    </a>
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <h3>No groups yet</h3>
+                    <p>Create your first group and start collaborating.</p>
+                    <a href="/create_group" class="create-btn">
+                        ＋ Create your first group
+                    </a>
+                </div>
+
             {% endfor %}
-        </ul>
-        <a href="{{ url_for('logout') }}" class="btn">Log Out</a>
-    </div>
+
+        </div>
+
+    </main>
+
 </body>
 </html>

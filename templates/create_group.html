@@ -1,95 +1,786 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Group</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Create Group | StudySpace</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --sidebar: #111827;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: var(--sidebar);
+            color: white;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.7px;
+            margin: 0 0 55px 8px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+        }
+
+        .menu-label {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0 0 15px 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            color: #9ca3af;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: white;
+            background: #252f42;
+        }
+
+        .nav-link.active {
+            background: #312e81;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid #293344;
+            padding-top: 20px;
+        }
+
+        /* Main content */
+        .content {
+            flex: 1;
+            min-width: 0;
+            padding: 45px 55px;
+        }
+
+        .breadcrumb {
+            margin-bottom: 25px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 30px;
+            letter-spacing: -1px;
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+        .page-header p {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        /* Form container */
+        .form-container {
+            max-width: 850px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 35px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0 0 7px;
+        }
+
+        .section-description {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0 0 22px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 9px;
+            color: #334155;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text);
+            background: white;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-group textarea {
+            min-height: 110px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #a1aab8;
+        }
+
+        /* Privacy toggle */
+        .privacy-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 17px 19px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            gap: 15px;
+        }
+
+        .privacy-info {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .privacy-icon {
+            width: 40px;
+            height: 40px;
+            background: #eef2ff;
+            color: var(--primary);
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 19px;
+        }
+
+        .privacy-info strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .privacy-info span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .switch {
+            position: relative;
+            width: 46px;
+            height: 25px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            background: #cbd5e1;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 19px;
+            height: 19px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .switch input:checked + .slider {
+            background: var(--primary);
+        }
+
+        .switch input:checked + .slider::before {
+            transform: translateX(21px);
+        }
+
+        /* Topic editor */
+        .topics-container {
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+        }
+
+        .topic-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            transition: 0.2s;
+        }
+
+        .topic-item:focus-within {
+            border-color: #a5b4fc;
+            background: white;
+        }
+
+        .topic-label {
+            flex-shrink: 0;
+            min-width: 75px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .topic-item input {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .topic-item input:focus {
+            border-color: var(--primary);
+        }
+
+        .topic-remove {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            border: none;
+            border-radius: 8px;
+            color: #ef4444;
+            background: #fee2e2;
+            cursor: pointer;
+            font-size: 17px;
+            transition: 0.2s;
+        }
+
+        .topic-remove:hover {
+            background: #fecaca;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 19px;
+            border: none;
+            border-radius: 9px;
+            background: var(--primary);
+            color: white;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-dark {
+            background: #111827;
+        }
+
+        .btn-dark:hover {
+            background: #293344;
+        }
+
+        .btn-outline {
+            color: var(--text);
+            background: white;
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+
+        .topic-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 18px;
+            gap: 12px;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 25px;
+            margin-top: 30px;
+            gap: 12px;
+        }
+
+        .back-link {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 9px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 75px;
+                padding: 25px 10px;
+            }
+
+            .logo {
+                justify-content: center;
+                margin: 0 0 45px;
+            }
+
+            .logo span:last-child,
+            .menu-label,
+            .nav-link span {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+                padding: 14px 5px;
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
+            }
+
+            .form-container {
+                padding: 22px 17px;
+            }
+
+            .form-footer {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .form-footer .btn {
+                width: 100%;
+            }
+
+            .topic-item {
+                gap: 8px;
+                padding: 10px;
+            }
+
+            .topic-label {
+                min-width: 55px;
+                font-size: 11px;
+            }
+
+            .topic-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .topic-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <header>
-        <h1>Create a New Group</h1>
-    </header>
-    <main>
-        <form action="/create_group" method="post">
-            <div class="form-group">
-                <label for="groupName">Group Name:</label>
-                <input type="text" id="groupName" name="groupName" value="{{ group_name if group_name else '' }}" required>
-            </div>
 
-            <div class="form-group">
-                <label for="groupDescription">Group Description:</label>
-                <textarea id="groupDescription" name="groupDescription" required>{{ group_desc if group_desc else '' }}</textarea>
-            </div>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <span class="logo-icon">✦</span>
+            <span>StudySpace</span>
+        </div>
 
-            <div class="form-group">
-                <label for="status">Private</label>
-                <input type="checkbox" id="status" name="Status" value="Active" {% if is_private %}checked{% endif %}>
-            </div>
+        <p class="menu-label">Workspace</p>
 
-            <!-- Input for adding topics -->
-            {% if not topics %}
-            <div class="form-group">
-                <label for="addTopics">Enter Topics:</label>
-                <textarea id="addTopics" name="addTopics" required></textarea>
-            </div>
-            <button type="submit" name="preview">Preview Topics</button>
-            {% endif %}
+        <a href="{{ url_for('main') }}" class="nav-link">
+            <span>▦</span>
+            <span>Dashboard</span>
+        </a>
 
-            <!-- Show transformed topics -->
-            <div id="topics-container">
-                {% if topics %}
-                    <h3>Edit Topics:</h3>
-                    {% for key, value in topics.items() %}
-                        <div class="form-group">
-                            <label>Topic {{ key }}</label>
-                            <input type="text" name="topic_{{ key }}" value="{{value}}">
+        <a href="{{ url_for('main') }}" class="nav-link active">
+            <span>👥</span>
+            <span>My Groups</span>
+        </a>
+
+        <div class="sidebar-bottom">
+            <a href="{{ url_for('logout') }}" class="nav-link">
+                <span>↪</span>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+
+        <div class="breadcrumb">
+            <a href="{{ url_for('main') }}">Dashboard</a> / Create Group
+        </div>
+
+        <div class="page-header">
+            <h1>Create a New Group ✨</h1>
+            <p>Set up your workspace, invite members and organize your topics.</p>
+        </div>
+
+        <div class="form-container">
+
+            <form action="{{ url_for('create_group') }}" method="post">
+
+                <!-- Basic information -->
+                <section class="form-section">
+
+                    <h2 class="section-title">Group Information</h2>
+                    <p class="section-description">
+                        Start by giving your group a name and a short description.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="groupName">Group Name</label>
+                        <input
+                            type="text"
+                            id="groupName"
+                            name="groupName"
+                            placeholder="e.g. Web Development Team"
+                            value="{{ group_name if group_name else '' }}"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="groupDescription">Group Description</label>
+                        <textarea
+                            id="groupDescription"
+                            name="groupDescription"
+                            placeholder="What is this group about?"
+                            required>{{ group_desc if group_desc else '' }}</textarea>
+                    </div>
+
+                </section>
+
+                <!-- Privacy -->
+                <section class="form-section">
+
+                    <h2 class="section-title">Privacy Settings</h2>
+                    <p class="section-description">
+                        Choose who can access your group.
+                    </p>
+
+                    <div class="privacy-card">
+
+                        <div class="privacy-info">
+                            <div class="privacy-icon">🔒</div>
+                            <div>
+                                <strong>Private Group</strong>
+                                <span>Restrict access to invited members.</span>
+                            </div>
                         </div>
-                    {% endfor %}
-                    <button onclick="addTopic()" type="button" id="addTopicBtn">+</button>
-                    <button type="submit" name="final_submit">Create Group</button>
+
+                        <label class="switch">
+                            <input
+                                type="checkbox"
+                                id="status"
+                                name="Status"
+                                value="Active"
+                                {% if is_private %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+
+                    </div>
+
+                </section>
+
+                <!-- Topics input -->
+                {% if not topics %}
+
+                    <section class="form-section">
+
+                        <h2 class="section-title">Group Topics</h2>
+                        <p class="section-description">
+                            Add topics for your members. Enter each topic on a separate line.
+                        </p>
+
+                        <div class="form-group">
+                            <label for="addTopics">Topics</label>
+                            <textarea
+                                id="addTopics"
+                                name="addTopics"
+                                placeholder="Introduction to Python&#10;Web Development&#10;Database Management"
+                                required></textarea>
+
+                            <div class="hint">
+                                You can edit individual topics in the next step.
+                            </div>
+                        </div>
+
+                        <button type="submit" name="preview" class="btn">
+                            Preview Topics →
+                        </button>
+
+                    </section>
+
                 {% endif %}
-            </div>
-            <button href="/main" class="form-group" style="margin-top: 20px;">Back to Main Page</button>
-        </form>
+
+                <!-- Topic editor -->
+                {% if topics %}
+
+                    <section class="form-section">
+
+                        <h2 class="section-title">Edit Your Topics</h2>
+                        <p class="section-description">
+                            Review your topics and make any necessary changes before creating the group.
+                        </p>
+
+                        <div id="topics-container" class="topics-container">
+
+                            {% for key, value in topics.items() %}
+
+                                <div class="topic-item">
+
+                                    <span class="topic-label">#{{ key }}</span>
+
+                                    <input
+                                        type="text"
+                                        name="topic_{{ key }}"
+                                        value="{{ value }}"
+                                        placeholder="Enter topic name"
+                                        required>
+
+                                    <button
+                                        type="button"
+                                        class="topic-remove"
+                                        title="Remove topic"
+                                        onclick="removeTopic(this)">
+                                        ×
+                                    </button>
+
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="topic-actions">
+                            <button
+                                onclick="addTopic()"
+                                type="button"
+                                class="btn btn-outline"
+                                id="addTopicBtn">
+                                ＋ Add Another Topic
+                            </button>
+                        </div>
+
+                    </section>
+
+                    <div class="form-footer">
+
+                        <a href="{{ url_for('main') }}" class="back-link">
+                            ← Back to Dashboard
+                        </a>
+
+                        <button type="submit" name="final_submit" class="btn">
+                            Create Group ✓
+                        </button>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="form-footer">
+                        <a href="{{ url_for('main') }}" class="back-link">
+                            ← Back to Dashboard
+                        </a>
+                    </div>
+
+                {% endif %}
+
+            </form>
+
+        </div>
+
     </main>
+
     <script>
 
-        function autoResize(textarea) {
-            textarea.style.height = "auto";
-            textarea.style.height = textarea.scrollHeight + "px";
-        }
-    
-
         function addTopic() {
-            const topicsContainer = document.querySelector("#topics-container");
+            const topicsContainer = document.getElementById("topics-container");
+
             if (!topicsContainer) return;
 
-            // Find the highest existing topic number
-            let topicInputs = topicsContainer.querySelectorAll("input[name^='topic_']");
-            let topicCount = topicInputs.length > 0 
-                ? Math.max(...Array.from(topicInputs).map(el => parseInt(el.name.replace("topic_", "")))) + 1 
+            const topicInputs = topicsContainer.querySelectorAll("input[name^='topic_']");
+
+            const existingNumbers = Array.from(topicInputs)
+                .map(input => parseInt(input.name.replace("topic_", ""), 10))
+                .filter(number => !isNaN(number));
+
+            const topicCount = existingNumbers.length > 0
+                ? Math.max(...existingNumbers) + 1
                 : 1;
 
             const topicDiv = document.createElement("div");
-            topicDiv.classList.add("form-group");
+            topicDiv.className = "topic-item";
 
-            const label = document.createElement("label");
-            label.textContent = "Topic " + topicCount;
+            const label = document.createElement("span");
+            label.className = "topic-label";
+            label.textContent = "#" + topicCount;
 
             const input = document.createElement("input");
             input.type = "text";
             input.name = "topic_" + topicCount;
-            input.placeholder = "Enter new topic";
+            input.placeholder = "Enter topic name";
+            input.required = true;
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "topic-remove";
+            removeButton.title = "Remove topic";
+            removeButton.textContent = "×";
+            removeButton.onclick = function () {
+                removeTopic(this);
+            };
 
             topicDiv.appendChild(label);
             topicDiv.appendChild(input);
+            topicDiv.appendChild(removeButton);
 
-            // Insert new topic **before the "+" button**
-            const addButton = document.getElementById("addTopicBtn");
-            topicsContainer.insertBefore(topicDiv, addButton);
-        }          
+            topicsContainer.appendChild(topicDiv);
+
+            input.focus();
+        }
+
+        function removeTopic(button) {
+            const topicsContainer = document.getElementById("topics-container");
+
+            if (!topicsContainer) return;
+
+            const topicItems = topicsContainer.querySelectorAll(".topic-item");
+
+            if (topicItems.length <= 1) {
+                alert("A group must have at least one topic.");
+                return;
+            }
+
+            button.closest(".topic-item").remove();
+        }
+
     </script>
-</body>
 
+</body>
 </html>
